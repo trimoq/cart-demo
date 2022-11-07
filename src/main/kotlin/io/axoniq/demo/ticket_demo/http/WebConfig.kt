@@ -1,4 +1,4 @@
-package io.axoniq.demo.ticket_demo.http.config
+package io.axoniq.demo.ticket_demo.http
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

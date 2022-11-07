@@ -1,4 +1,4 @@
-package io.axoniq.demo.ticket_demo.http.ws
+package io.axoniq.demo.ticket_demo.http
 
 import io.axoniq.demo.ticket_demo.api.CartCreatedEvent
 import io.axoniq.demo.ticket_demo.api.CheckoutEvent
@@ -20,7 +20,7 @@ class MessageEventUpdater (
 
     @EventHandler
     fun on(event: CartCreatedEvent){
-        cartDB[event.id]=CartReadModel(event.id, false, mutableMapOf())
+        cartDB[event.id]= CartReadModel(event.id, false, mutableMapOf())
         simpMessagingTemplate.convertAndSend("/topic/events", WrappedEvent(event))
         pushCartUpdate(event.id)
     }
@@ -55,7 +55,7 @@ class MessageEventUpdater (
 data class CartReadModel (
     val id: String,
     var checkedOut: Boolean,
-    var items: MutableMap<String,ItemInCartReadModel>
+    var items: MutableMap<String, ItemInCartReadModel>
 )
 
 data class ItemInCartReadModel (
