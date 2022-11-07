@@ -8,6 +8,7 @@ import org.axonframework.commandhandling.CommandExecutionException
 import org.axonframework.commandhandling.gateway.CommandGateway
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -18,7 +19,8 @@ import java.util.*
 @RestController
 @RequestMapping("cart")
 class CartController(
-    val commandGateway: CommandGateway
+    val commandGateway: CommandGateway,
+    val cartProjector: CartProjector
 ) {
     @PostMapping("/")
     fun createCart():ResponseEntity<String>{
@@ -62,6 +64,12 @@ class CartController(
             return ResponseEntity.badRequest().body(e.message)
         }
         return ResponseEntity.ok().build()
+    }
+    @GetMapping("/{cartId}/")
+    fun getCart(
+        @PathVariable cartId: String,
+    ):CartReadModel?{
+       return cartProjector.getCart(cartId)
     }
 }
 
