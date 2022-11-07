@@ -20,8 +20,8 @@ class TicketController(
 
 //    @GetMapping("/")
 //    fun getTicket(){
-//
 //    }
+
     @PostMapping("/")
     fun createTicket():String{
         var card =  commandGateway.sendAndWait<String>(IssueCardCommand(UUID.randomUUID().toString(),7))
