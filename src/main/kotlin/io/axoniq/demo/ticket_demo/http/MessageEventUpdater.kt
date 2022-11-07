@@ -1,21 +1,13 @@
 package io.axoniq.demo.ticket_demo.http.ws
 
-import io.axoniq.demo.ticket_demo.api.CardIssuedEvent
-import io.axoniq.demo.ticket_demo.api.CardRedeemedEvent
-import io.axoniq.demo.ticket_demo.api.CardSummary
 import io.axoniq.demo.ticket_demo.api.CartCreatedEvent
 import io.axoniq.demo.ticket_demo.api.CheckoutEvent
 import io.axoniq.demo.ticket_demo.api.ItemAddedEvent
 import io.axoniq.demo.ticket_demo.api.ItemRemovedEvent
-import io.axoniq.demo.ticket_demo.api.RemoveItemCommand
 import org.axonframework.eventhandling.EventHandler
 import org.springframework.messaging.simp.SimpMessagingTemplate
-import org.springframework.messaging.simp.annotation.SubscribeMapping
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Controller
-import java.util.*
-import java.util.concurrent.ConcurrentSkipListMap
-import kotlin.collections.HashMap
 
 
 @Component
@@ -34,17 +26,12 @@ class MessageEventUpdater (
     }
     @EventHandler
     fun on(event: ItemAddedEvent){
-        println("pre:"+cartDB[event.id]?.items)
+        var items = cartDB[event.id]?.items
+        items?.set(
+            event.itemId,
+            ItemInCartReadModel(event.itemId,(items[event.itemId]?.amount ?: 0)+event.amount)
+        )
 
-        if(cartDB[event.id]?.items?.containsKey(event.itemId) == true){
-            val amount = (cartDB[event.id]?.items?.get(event.itemId)?.amount ?: 0) + event.amount
-            cartDB[event.id]?.items?.set(event.itemId, ItemInCartReadModel(event.itemId,amount))
-            println("Post1:"+cartDB[event.id]?.items)
-        }else{
-            cartDB[event.id]?.items?.set(event.itemId, ItemInCartReadModel(event.itemId,event.amount))
-            println("Post2:"+cartDB[event.id]?.items)
-
-        }
         simpMessagingTemplate.convertAndSend("/topic/events", WrappedEvent(event))
         pushCartUpdate(event.id)
     }

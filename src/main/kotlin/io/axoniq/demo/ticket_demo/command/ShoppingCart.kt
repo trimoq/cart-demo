@@ -36,7 +36,7 @@ class ShoppingCart {
     @CommandHandler
     fun handle(command: AddItemCommand){
         require(command.amount>0) { "Must at least add one item" }
-        check(items.size<=MAX_ITEM_SLOTS_PER_CART) { "Cannot add any more items" }
+        check(items.size<MAX_ITEM_SLOTS_PER_CART||items.containsKey(command.itemId)) { "Cannot add any more items" }
         check(modifiable) { "Must not modify checked-out cart" }
         apply(ItemAddedEvent(command.id,command.itemId,command.amount) )
     }

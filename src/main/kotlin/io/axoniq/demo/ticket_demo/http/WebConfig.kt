@@ -22,7 +22,6 @@ class WebSocketConfig :  WebSocketMessageBrokerConfigurer {
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
-//        registry.addEndpoint("/ws")
         registry.addEndpoint("/ws")
             .setAllowedOriginPatterns("**")
             .withSockJS()
