@@ -17,7 +17,6 @@ import org.axonframework.modelling.command.AggregateLifecycle.apply
 
 object Constants{
     const val MAX_ITEM_SLOTS_PER_CART = 7;
-
 }
 
 @Aggregate
@@ -36,7 +35,7 @@ class ShoppingCart {
     @CommandHandler
     fun handle(command: AddItemCommand){
         require(command.amount>0) { "Must at least add one item" }
-        check(items.size<MAX_ITEM_SLOTS_PER_CART||items.containsKey(command.itemId)) { "Cannot add any more items" }
+        check(items.size<MAX_ITEM_SLOTS_PER_CART || items.containsKey(command.itemId)) { "Cannot add any more items" }
         check(modifiable) { "Must not modify checked-out cart" }
         apply(ItemAddedEvent(command.id,command.itemId,command.amount) )
     }
@@ -59,25 +58,25 @@ class ShoppingCart {
     fun on(event: CartCreatedEvent){
         cardId = event.id
         items = HashMap()
-        println("Create: $event")
+//        println("Create: $event")
     }
 
     @EventSourcingHandler
     fun on(event: ItemAddedEvent){
         val amount =  items[event.itemId]?.amount ?: 0
         items[event.itemId] = ItemInCart(event.itemId, amount)
-        println("Add: $event")
+//        println("Add: $event")
     }
 
     @EventSourcingHandler
     fun on(event: ItemRemovedEvent){
         items -= event.itemId
-        println("Remove: $event")
+//        println("Remove: $event")
     }
     @EventSourcingHandler
     fun on(event: CheckoutEvent){
         modifiable = false
-        println("Checkout: $event")
+//        println("Checkout: $event")
     }
 
     constructor()

@@ -25,7 +25,6 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.axonframework:axon-spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
-//    implementation("org.axonframework:axon-spring-boot-starter:4.6.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 

@@ -1,6 +1,5 @@
 package io.axoniq.demo.ticket_demo.stats
 
-import io.axoniq.demo.ticket_demo.api.ItemAddedEvent
 import io.axoniq.demo.ticket_demo.api.ItemRemovedEvent
 import org.axonframework.eventhandling.EventHandler
 import org.springframework.stereotype.Component
@@ -12,12 +11,9 @@ class ItemRemovalProjector {
 
     @EventHandler
     fun on(event: ItemRemovedEvent){
-        itemRemovedStats.computeIfAbsent(event.itemId){ RemovedModel() }.removals+=1
+        itemRemovedStats.computeIfAbsent(event.itemId){ RemovedModel() }.removals += 1
     }
-    @EventHandler
-    fun on(event: ItemAddedEvent){
-        itemRemovedStats.computeIfAbsent(event.itemId) { RemovedModel() }.adds+=1
-    }
+
     fun  getItemRemovedStats():MutableMap<String, RemovedModel>{
         return itemRemovedStats
     }
@@ -25,6 +21,5 @@ class ItemRemovalProjector {
 }
 
 data class RemovedModel (
-    var removals: Int = 0,
-    var adds: Int = 0
+    var removals: Int = 0
 )

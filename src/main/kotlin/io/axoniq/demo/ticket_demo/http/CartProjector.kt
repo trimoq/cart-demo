@@ -32,6 +32,7 @@ class CartProjector (
         cartDB[event.id]= CartReadModel(event.id, false, mutableMapOf())
         simpMessagingTemplate.convertAndSend("/topic/events", WrappedEvent(event))
         pushCartUpdate(event.id)
+        println("Create $event")
     }
     @EventHandler
     fun on(event: ItemAddedEvent){
@@ -42,18 +43,21 @@ class CartProjector (
         )
         simpMessagingTemplate.convertAndSend("/topic/events", WrappedEvent(event))
         pushCartUpdate(event.id)
+        println("Add $event")
     }
     @EventHandler
     fun on(event: ItemRemovedEvent){
         cartDB[event.id]?.items?.remove(event.itemId)
         simpMessagingTemplate.convertAndSend("/topic/events", WrappedEvent(event))
         pushCartUpdate(event.id)
+        println("Removed $event")
     }
     @EventHandler
     fun on(event: CheckoutEvent){
         cartDB[event.id]?.checkedOut=true;
         simpMessagingTemplate.convertAndSend("/topic/events", WrappedEvent(event))
         pushCartUpdate(event.id)
+        println("Checkout $event")
     }
     private fun pushCartUpdate(id: String) {
         cartDB[id]?.let { simpMessagingTemplate.convertAndSend("/topic/cart", it) }
