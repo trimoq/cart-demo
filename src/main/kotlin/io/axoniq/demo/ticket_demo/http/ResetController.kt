@@ -14,6 +14,7 @@ class ResetController(
     var itemRemovalProjector: ItemRemovalProjector,
     var configuration: Configuration
 ) {
+
     @PostMapping("/")
     fun resetEventProcessor(){
         configuration.eventProcessingConfiguration()

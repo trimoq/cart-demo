@@ -34,6 +34,7 @@ class CartProjector (
         pushCartUpdate(event.id)
         println("Create $event")
     }
+
     @EventHandler
     fun on(event: ItemAddedEvent){
         var items = cartDB[event.id]?.items
@@ -45,6 +46,7 @@ class CartProjector (
         pushCartUpdate(event.id)
         println("Add $event")
     }
+
     @EventHandler
     fun on(event: ItemRemovedEvent){
         cartDB[event.id]?.items?.remove(event.itemId)
@@ -52,6 +54,7 @@ class CartProjector (
         pushCartUpdate(event.id)
         println("Removed $event")
     }
+
     @EventHandler
     fun on(event: CheckoutEvent){
         cartDB[event.id]?.checkedOut=true;
@@ -59,6 +62,7 @@ class CartProjector (
         pushCartUpdate(event.id)
         println("Checkout $event")
     }
+
     private fun pushCartUpdate(id: String) {
         cartDB[id]?.let { simpMessagingTemplate.convertAndSend("/topic/cart", it) }
     }

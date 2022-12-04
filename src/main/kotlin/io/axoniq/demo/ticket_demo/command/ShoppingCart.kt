@@ -21,6 +21,7 @@ object Constants{
 
 @Aggregate
 class ShoppingCart {
+
     @AggregateIdentifier
     private var cardId: String? = null
     private var items: MutableMap<String,ItemInCart> = HashMap()
@@ -58,25 +59,22 @@ class ShoppingCart {
     fun on(event: CartCreatedEvent){
         cardId = event.id
         items = HashMap()
-//        println("Create: $event")
     }
 
     @EventSourcingHandler
     fun on(event: ItemAddedEvent){
         val amount =  items[event.itemId]?.amount ?: 0
         items[event.itemId] = ItemInCart(event.itemId, amount)
-//        println("Add: $event")
     }
 
     @EventSourcingHandler
     fun on(event: ItemRemovedEvent){
         items -= event.itemId
-//        println("Remove: $event")
     }
+
     @EventSourcingHandler
     fun on(event: CheckoutEvent){
         modifiable = false
-//        println("Checkout: $event")
     }
 
     constructor()
