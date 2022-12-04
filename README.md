@@ -37,3 +37,8 @@ gradle bootRun
 ```
 using a reasonably recent gradle version. I used `Gradle 7.5.1` and `OpenJDK 17` for the demo.
 
+
+## Running the frontend
+The demo has a [companion-repo](https://github.com/trimoq/cart-demo-ui) containing a frontend application to ease interaction with the backend.
+
+Follow the instructions found in that repo on how to run it.
