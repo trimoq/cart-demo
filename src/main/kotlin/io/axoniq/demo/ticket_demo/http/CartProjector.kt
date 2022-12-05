@@ -20,6 +20,13 @@ data class ItemInCartReadModel (
     var amount: Int
 )
 
+/**
+ * Projector subscribing on events created by the shopping cart.
+ * This implementation uses these events to do two things:
+ *   - Keep an in-memory representation of all shopping carts to present them via the `/{cartId}/` endpoint
+ *   - Push changes via spring messaging (via websockets) to the frontend for live updates
+ * Note that storing this data in a database may be a better option for some applications
+ */
 @Component
 class CartProjector (
     var simpMessagingTemplate:SimpMessagingTemplate

@@ -6,3 +6,7 @@ services:
     ports:
       - '8024:8024'
       - '8124:8124'
+  ui:
+    image: 'trimoq/cart-demo'
+    ports:
+      - '8081:80'
