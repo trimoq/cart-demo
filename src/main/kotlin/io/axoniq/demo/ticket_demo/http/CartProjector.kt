@@ -19,7 +19,7 @@ class CartProjector (
     @EventHandler
     fun on(event: CartCreatedEvent){
         cartDB[event.id]= CartReadModel(event.id, false, mutableMapOf())
-        publishUpdate(WrappedEvent(event))
+        pushUpdateToUi(WrappedEvent(event))
     }
 
     @EventHandler
@@ -29,39 +29,40 @@ class CartProjector (
             event.itemId,
             ItemInCartReadModel(event.itemId,(items[event.itemId]?.amount ?: 0) + event.amount)
         )
-        publishUpdate(WrappedEvent(event))
+        pushUpdateToUi(WrappedEvent(event))
     }
 
     @EventHandler
     fun on(event: ItemRemovedEvent){
         cartDB[event.id]?.items?.remove(event.itemId)
-        publishUpdate(WrappedEvent(event))
+        pushUpdateToUi(WrappedEvent(event))
     }
 
     @EventHandler
     fun on(event: CheckoutEvent){
         cartDB[event.id]?.checkedOut=true
-        publishUpdate(WrappedEvent(event))
+        pushUpdateToUi(WrappedEvent(event))
     }
 
-
-    private fun publishUpdate(event: WrappedEvent) {
-        simpMessagingTemplate.convertAndSend("/topic/events", event)
-        println("[${event.cartId}]: ${event.eventType}")
-        pushCartUpdate(event.cartId)
-
-    }
-
-    private fun pushCartUpdate(id: String) {
-        cartDB[id]?.let { simpMessagingTemplate.convertAndSend("/topic/cart", it) }
-    }
-
+    // Some accessors to provide this data to the REST API
     fun getCart(id: String): CartReadModel? {
         return cartDB[id]
     }
 
     fun getAllCachedCarts(): MutableMap<String, CartReadModel> {
         return cartDB
+    }
+
+    // We send all events to the ui to display them
+    private fun pushUpdateToUi(event: WrappedEvent) {
+        simpMessagingTemplate.convertAndSend("/topic/events", event)
+        println("[${event.cartId}]: ${event.eventType}")
+        pushUpdatedCartStateToUi(event.cartId)
+    }
+
+    // When a shopping cart changes, we push the new state to the UI
+    private fun pushUpdatedCartStateToUi(id: String) {
+        cartDB[id]?.let { simpMessagingTemplate.convertAndSend("/topic/cart", it) }
     }
 }
 

@@ -22,13 +22,13 @@ class ItemRemovalProjector(
     @EventHandler
     fun on(event: ItemRemovedEvent){
         itemRemovedStats.computeIfAbsent(event.itemId){ RemovedModel() }.removals += 1
-        pushRemovalUpdate()
+        pushRemovalUpdateToUi()
     }
 
 
 
 
-    private fun pushRemovalUpdate() {
+    private fun pushRemovalUpdateToUi() {
         simpMessagingTemplate.convertAndSend("/topic/stats", itemRemovedStats)
     }
 
