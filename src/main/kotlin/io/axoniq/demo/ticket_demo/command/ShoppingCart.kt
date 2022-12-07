@@ -29,7 +29,6 @@ class ShoppingCart {
 
     @CommandHandler
     constructor(command: CreateCartCommand){
-        println("Handling CreateCartCommand: $command")
         apply ( CartCreatedEvent(command.id) )
     }
 
