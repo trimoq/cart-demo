@@ -9,6 +9,64 @@ import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Component
 
 
+@Component
+class CartProjector (
+    var simpMessagingTemplate:SimpMessagingTemplate
+        ){
+
+    private var cartDB: MutableMap<String, CartReadModel> = HashMap()
+
+    @EventHandler
+    fun on(event: CartCreatedEvent){
+        cartDB[event.id]= CartReadModel(event.id, false, mutableMapOf())
+        publishUpdate(WrappedEvent(event))
+    }
+
+    @EventHandler
+    fun on(event: ItemAddedEvent){
+        val items = cartDB[event.id]?.items
+        items?.set(
+            event.itemId,
+            ItemInCartReadModel(event.itemId,(items[event.itemId]?.amount ?: 0) + event.amount)
+        )
+        publishUpdate(WrappedEvent(event))
+    }
+
+    @EventHandler
+    fun on(event: ItemRemovedEvent){
+        cartDB[event.id]?.items?.remove(event.itemId)
+        publishUpdate(WrappedEvent(event))
+    }
+
+    @EventHandler
+    fun on(event: CheckoutEvent){
+        cartDB[event.id]?.checkedOut=true
+        publishUpdate(WrappedEvent(event))
+    }
+
+
+    private fun publishUpdate(event: WrappedEvent) {
+        simpMessagingTemplate.convertAndSend("/topic/events", event)
+        println("[${event.cartId}]: ${event.eventType}")
+        pushCartUpdate(event.cartId)
+
+    }
+
+    private fun pushCartUpdate(id: String) {
+        cartDB[id]?.let { simpMessagingTemplate.convertAndSend("/topic/cart", it) }
+    }
+
+    fun getCart(id: String): CartReadModel? {
+        return cartDB[id]
+    }
+
+    fun getAllCachedCarts(): MutableMap<String, CartReadModel> {
+        return cartDB
+    }
+}
+
+// For the In-Memory datastore
+
 data class CartReadModel (
     val id: String,
     var checkedOut: Boolean,
@@ -20,70 +78,9 @@ data class ItemInCartReadModel (
     var amount: Int
 )
 
-/**
- * Projector subscribing on events created by the shopping cart.
- * This implementation uses these events to do two things:
- *   - Keep an in-memory representation of all shopping carts to present them via the `/{cartId}/` endpoint
- *   - Push changes via spring messaging (via websockets) to the frontend for live updates
- * Note that storing this data in a database may be a better option for some applications
- */
-@Component
-class CartProjector (
-    var simpMessagingTemplate:SimpMessagingTemplate
-        ){
-
-    private var cartDB: MutableMap<String, CartReadModel> = HashMap()
-
-    @EventHandler
-    fun on(event: CartCreatedEvent){
-        cartDB[event.id]= CartReadModel(event.id, false, mutableMapOf())
-        simpMessagingTemplate.convertAndSend("/topic/events", WrappedEvent(event))
-        pushCartUpdate(event.id)
-        println("Create $event")
-    }
-
-    @EventHandler
-    fun on(event: ItemAddedEvent){
-        var items = cartDB[event.id]?.items
-        items?.set(
-            event.itemId,
-            ItemInCartReadModel(event.itemId,(items[event.itemId]?.amount ?: 0)+event.amount)
-        )
-        simpMessagingTemplate.convertAndSend("/topic/events", WrappedEvent(event))
-        pushCartUpdate(event.id)
-        println("Add $event")
-    }
-
-    @EventHandler
-    fun on(event: ItemRemovedEvent){
-        cartDB[event.id]?.items?.remove(event.itemId)
-        simpMessagingTemplate.convertAndSend("/topic/events", WrappedEvent(event))
-        pushCartUpdate(event.id)
-        println("Removed $event")
-    }
-
-    @EventHandler
-    fun on(event: CheckoutEvent){
-        cartDB[event.id]?.checkedOut=true;
-        simpMessagingTemplate.convertAndSend("/topic/events", WrappedEvent(event))
-        pushCartUpdate(event.id)
-        println("Checkout $event")
-    }
-
-    private fun pushCartUpdate(id: String) {
-        cartDB[id]?.let { simpMessagingTemplate.convertAndSend("/topic/cart", it) }
-    }
-
-    fun getCart(id: String): CartReadModel? {
-        return cartDB[id]
-    }
-}
 
 
-
-
-
-// For showing events in the app
+// For showing events in the frontend
 
 class WrappedEvent(
     var eventType: EventTypeDTO,

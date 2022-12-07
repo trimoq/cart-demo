@@ -13,7 +13,6 @@ class ItemRemovalProjector(
 
     private var itemRemovedStats: MutableMap<String, RemovedModel> = HashMap()
 
-
     @ResetHandler
     fun onReset(){
         println("ItemRemovalProjector was reset")
@@ -23,8 +22,9 @@ class ItemRemovalProjector(
     @EventHandler
     fun on(event: ItemRemovedEvent){
         itemRemovedStats.computeIfAbsent(event.itemId){ RemovedModel() }.removals += 1
-        pushRemovalUpdate();
+        pushRemovalUpdate()
     }
+
 
 
 

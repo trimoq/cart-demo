@@ -24,7 +24,9 @@ class CartController(
 ) {
     @PostMapping("/")
     fun createCart():ResponseEntity<String>{
-        val id = commandGateway.sendAndWait<String>(CreateCartCommand(UUID.randomUUID().toString().substring(0,8)))
+        val id = commandGateway.sendAndWait<String>(
+            CreateCartCommand(randomId())
+        )
         return ResponseEntity.ok().body(id)
     }
 
@@ -33,12 +35,12 @@ class CartController(
         @PathVariable cartId: String,
         @RequestBody addItemDto: AddItemDTO
     ):ResponseEntity<String>{
-        try {
+        return try {
             commandGateway.sendAndWait<Void>(addItemDto.toAddItemCommand(cartId))
+            ResponseEntity.ok().build()
         }catch (e: CommandExecutionException){
-            return ResponseEntity.badRequest().body(e.message)
+            ResponseEntity.badRequest().body(e.message)
         }
-        return ResponseEntity.ok().build()
     }
 
     @DeleteMapping("/{cartId}/items/{itemId}")
@@ -46,38 +48,47 @@ class CartController(
         @PathVariable cartId: String,
         @PathVariable itemId: String,
     ):ResponseEntity<String>{
-        try {
+        return try {
             commandGateway.sendAndWait<Void>(RemoveItemCommand(cartId,itemId))
+            ResponseEntity.ok().build()
         }catch (e: CommandExecutionException){
-            return ResponseEntity.badRequest().body(e.message)
+            ResponseEntity.badRequest().body(e.message)
         }
-        return ResponseEntity.ok().build()
     }
 
     @PostMapping("/{cartId}/checkout")
     fun checkoutCart(
         @PathVariable cartId: String
     ):ResponseEntity<String>{
-        try {
+        return try {
             commandGateway.sendAndWait<Void>(CheckoutCommand(cartId))
+            ResponseEntity.ok().build()
         }catch (e: CommandExecutionException){
-            return ResponseEntity.badRequest().body(e.message)
+            ResponseEntity.badRequest().body(e.message)
         }
-        return ResponseEntity.ok().build()
     }
+
     @GetMapping("/{cartId}/")
     fun getCart(
         @PathVariable cartId: String,
     ):CartReadModel?{
        return cartProjector.getCart(cartId)
     }
+
+    @GetMapping("/")
+    fun getAllCachedCarts(): MutableMap<String, CartReadModel>{
+        return cartProjector.getAllCachedCarts()
+    }
+
+    private fun randomId() = UUID.randomUUID().toString().substring(0, 8)
+
 }
 
 data class AddItemDTO (
     val itemId: String,
     val amount: Int
 ){
-    fun toAddItemCommand(cartId: String):AddItemCommand{
+    fun toAddItemCommand(cartId: String): AddItemCommand {
         return AddItemCommand(cartId,itemId,amount)
     }
 }

@@ -16,7 +16,7 @@ import org.axonframework.spring.stereotype.Aggregate
 import org.axonframework.modelling.command.AggregateLifecycle.apply
 
 object Constants{
-    const val MAX_ITEM_SLOTS_PER_CART = 7;
+    const val MAX_ITEM_SLOTS_PER_CART = 5;
 }
 
 @Aggregate
@@ -77,6 +77,7 @@ class ShoppingCart {
         modifiable = false
     }
 
+    // Constructor needed by AxonFramework
     constructor()
 
 }

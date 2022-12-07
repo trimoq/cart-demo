@@ -27,6 +27,7 @@ class ResetController(
     }
 
     private fun resetEventProcessor(processorName: String) {
+        // Attention, this only works correctly, if there is only one instance of this application running
         configuration.eventProcessingConfiguration()
             .eventProcessorByProcessingGroup(
                 "io.axoniq.demo.ticket_demo.$processorName",
